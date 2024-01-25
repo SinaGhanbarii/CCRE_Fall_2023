@@ -19,5 +19,10 @@ for i = 1:nsidedpoly
     mw_av = mw_av + MolarFraction(i)*mw(i);
 end
 
+DensityMassGas = DensityMolarGas * mw_av; %kg/m3
+SuperFicialVelocity = G/DensityMassGas;
+
+
+
 
 end
