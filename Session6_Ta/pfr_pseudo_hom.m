@@ -28,9 +28,20 @@ ReactionK(1) = exp(19.837 - 13636/Temperature);
 ReactionK(2) = exp(18.970 - 14394/Temperature);
 ReactionK(3) = exp(20.860 - 15803/Temperature);
 
-ReactionRate(1) = ReactionK(1) * Pressure_Pa^2 * MolarFraction(2)*MolarFraction(3); %kmol/kgcat/hr
-ReactionRate(2) = [];
+ReactionRate(1) = ReactionK(1) * Pressure_Pa^2 * MolarFraction(2) * MolarFraction(3); %kmol/kgcat/hr
+ReactionRate(2) = ReactionK(2) * Pressure_bar^2 * MolarFraction(2) * MolarFraction(3); %kmol/kgcat/hr
+ReactionRate(3) = ReactionK(3) * Pressure_bar^2 * MolarFraction(2) * MolarFraction(4); %kmol/kgcat/hr
 
+
+%% Govrening Equations!
+
+NetRateProduction = ones(NS,1);
+
+for j=1:NR
+    for i=1:NS
+        NetRateProduction(i) =  NetRateProduction(i) + Stoichiometry(j,i)*ReactionRate(j);
+    end
+end
 
 
 
