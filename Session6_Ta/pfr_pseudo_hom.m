@@ -1,6 +1,6 @@
 function pfr_pseudo_hom = pfr_pseudo_hom(t,y)
 global Stoichiometry deltaH mw SpecificHeatP Viscosity ...
-    TubeDiameter CatalystDensity U ...
+    TubeDiameter CatalystDensity U VoidFraction G MoltenSaltsTemperature ParticleDiameter...
 
 for i=1:nsidedpoly
     mol(i) = y(i)/mw(i);
@@ -43,6 +43,24 @@ for j=1:NR
     end
 end
 
+% Mass Balance
+for i=1:NS
+    pfr_pseudo_hom(i) = NetRateProduction(i)* (1-VoidFraction)* CatalystDensity*mw(i)/G;
+end
 
+RateH = 0;
+
+for j=1:NR
+    RateH = RateH + deltaH(j)*ReactionRate(j); %kJ/kgCat/hr
+end
+
+%Energy Balance
+pfr_pseudo_hom(NS+1) = (-RateH* (1-VoidFraction)* CatalystDensity + U*(4/TubeDiameter)...
+    *(MoltenSaltsTemperature - Temperature))/G/SpecificHeatP;
+
+% Ergun Equation
+pfr_pseudo_hom(NS+2) = -((150*(1-VoidFraction)^2/VoidFraction^3))* Viscosity*SuperFicialVelocity ...
+    /ParticleDiameter^2 + 7/4 *(DensityMassGas*SuperFicialVelocity^2/ParticleDiameter) ...
+    * ((1-VoidFraction)/VoidFraction^3);
 
 end
