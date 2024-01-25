@@ -46,3 +46,22 @@ FeedTemperature=MoltenSaltsTemperature;
 G=4900; %kg/m2/h
 oXylToAirRatio=0.013; 
 
+n_in = [0.79 0.21 oXylToAirRatio 0 0 0]; %moles
+ntot = sum(n_in);
+
+for i = 1:NS
+    MolarFractionIN(i) = n_in(i)/ntot_in;
+end
+
+basis_calc = 1; %kmol
+for i= 1:NS
+    mass(i) = MolarFractionIN(i)* basis_calc * mw(i);
+end
+mtot = sum(mass);
+
+for i=1:NS
+    MassFractionIN(i) = mass(i)/mtot;
+end
+
+FeedPressure = 1.1; %bar
+
