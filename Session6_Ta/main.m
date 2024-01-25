@@ -65,3 +65,12 @@ end
 
 FeedPressure = 1.1; %bar
 
+%##################################################################
+%% System Integration
+
+[t, y] = ode15s('pfr_pseudo_hom',[0:0.01:ReactorLength], ...
+    [MassFractionIN, FeedTemperature, FeedPressure]);
+
+
+
+
