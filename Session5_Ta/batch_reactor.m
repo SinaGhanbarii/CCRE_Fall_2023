@@ -20,7 +20,7 @@ end
 batch_reactor(1)=-r1;
 batch_reactor(2)=r1-r2;
 batch_reactor(3)=r2;
-batch_reactor(4)=(-r1*deltaH1-r2*deltaH2+U*A_v*(T_h-T))/rho/cp;
+batch_reactor(4)=(-r1*deltaH1-r2*deltaH2+U*A_v*(T_h - T))/rho/cp;
 
 batch_reactor = batch_reactor';
 
