@@ -5,7 +5,7 @@ function F=heat_balance1(y)
     
     k=k0*exp(-12000/T);
     %Part 1
-    F(1)=((Q*c0*delH_rxn)/( Q/(k*V)+1))-(Q*rho*cp*(T-T_feed))-UA*(T-Tcool)-5000*(T-280);
+    F(1)=((Q*c0*delH_rxn)/( Q/(k*V)+1))-(Q*rho*cp*(T-T_feed))-UA*(T-Tcool);%-5000*(T-280);
     %Part 2
     %F(1)=((Q*c0*delH_rxn)/( Q/(k*V)+1))-(Q*rho*cp*(T-T_feed))-UA*(T-Tcool);%-5000*(T-280);
 
