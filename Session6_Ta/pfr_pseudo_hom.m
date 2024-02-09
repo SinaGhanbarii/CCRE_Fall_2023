@@ -30,5 +30,30 @@ ReactionRate(1) = ReactionK(1)* Pressure_bar^2 * MolarFraction(2) * MolarFractio
 ReactionRate(2) = ReactionK(2)* Pressure_bar^2 * MolarFraction(2) * MolarFraction(4); %kmol/kgcat/hr
 ReactionRate(3) = ReactionK(3)* Pressure_bar^2 * MolarFraction(2) * MolarFraction(4); %kmol/kgcat/hr
 
+%% Governing Equations.
+NetRateProduction = ones(NS,1);
+for j=1:NR
+    for i=1:NS
+        NetRateProduction(i) = NetRateProduction(i) + Stoichiometry(j,i)*ReactionRate(j);
+    end
+end
+
+%Mass Balance
+for i=1:NS
+    pfr_pseudo_hom(i) = NetRateProduction(i)*(1-VoidFraction)*CatalystDensity*mw(i)/G;
+end
+
+RateH = 0;
+for j=1:NR
+    RateH = RateH + deltaH(j)*ReactionRate(j); %kJ/kgcat/hr
+end
+
+%Energy Balance
+pfr_pseudo_hom(NS+1) = (-RateH*(1-VoidFraction)*CatalystDensity + (4/TubeDiameter)*U*(MoltenSaltsTemperature-Temperature))/G/SpecificHeatP;
+
+% Ergun Equation
+pfr_pseudo_hom(NS+2) = -(((150*(1-VoidFraction)^2/VoidFraction^3))*Viscosity*SuperFicialVelocity/ParticleDiameter^2 + ...
+    7/4 * (DensityMassGas*SuperFicialVelocity^2/ParticleDiameter)* ((1-VoidFraction)/VoidFraction^3))/1e5;
+
 
 end
