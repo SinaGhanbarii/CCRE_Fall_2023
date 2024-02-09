@@ -1,59 +1,75 @@
-function pfr_pseudo_hom = pfr_pseudo_hom(t,y)
+function pfr_pseudo_hom=pfr_pseudo_hom(t,y)
+
+%
+% CCRE - Prof. Matteo Maestri - October 30 - a.a 2023/24
+%
+
 global Stoichiometry deltaH mw SpecificHeatP Viscosity ...
     TubeDiameter CatalystDensity U ...
-    VoidFraction MoltenSaltsTemperature G ParticleDiameter NS NR 
+    VoidFraction MoltenSaltsTemperature G ParticleDiameter NS NR ...
+
 for i=1:NS
-    mol(i) = y(i)/mw(i);
-
+    mol(i)=y(i)/mw(i); %mol
 end
-MolarFraction = mol./sum(mol);
-Temperature = y(end-1);
-Pressure_bar = y(end);
-Pressure_Pa = Pressure_bar* 1e5;
+MolarFraction=mol./sum(mol);
 
-DensityMolarGas = 1e-3 * Pressure_Pa;
-mw_av = 0;      % Avg. MW.
+Temperature=y(end-1);
+Pressure_bar=y(end);
+Pressure_Pa=Pressure_bar*1e5;
+DensityMolarGas=1e-3*Pressure_Pa/8.314/Temperature; %kmol/m3
+
+mw_av=0;
 for i=1:NS
-    mw_av = mw_av + MolarFraction(i)*mw(i);
+    mw_av=mw_av+MolarFraction(i)*mw(i);
 end
 
-DensityMassGas = DensityMolarGas*mw_av; %kg/m3
-SuperFicialVelocity = G/DensityMassGas;
+DensityMassGas=DensityMolarGas*mw_av; %kg/m3
 
-%Kinetics Scheme:
+SuperficialVelocity=G/DensityMassGas/3600; %m/s
 
-ReactionK(1) = exp(19.837 - 18636/Temperature);
-ReactionK(2) = exp(18.970 - 14394/Temperature);
-ReactionK(3) = exp(20.860 - 15803/Temperature);
+%-KINETIC SCHEME:
+ReactionK(1)=exp(19.837-13636/Temperature);
+ReactionK(2)=exp(18.970-14394/Temperature);
+ReactionK(3)=exp(20.860-15803/Temperature);
+ReactionRate(1)=ReactionK(1)*Pressure_bar^2....
+    *MolarFraction(2)*MolarFraction(3); %kmol/kg_cat_/h
+ReactionRate(2)=ReactionK(2)*Pressure_bar^2....
+    *MolarFraction(2)*MolarFraction(3); %kmol/kg_cat_/h
+ReactionRate(3)=ReactionK(3)*Pressure_bar^2....
+    *MolarFraction(2)*MolarFraction(4); %kmol/kg_cat_/h
 
-ReactionRate(1) = ReactionK(1)* Pressure_bar^2 * MolarFraction(2) * MolarFraction(3); %kmol/kgcat/hr
-ReactionRate(2) = ReactionK(2)* Pressure_bar^2 * MolarFraction(2) * MolarFraction(4); %kmol/kgcat/hr
-ReactionRate(3) = ReactionK(3)* Pressure_bar^2 * MolarFraction(2) * MolarFraction(4); %kmol/kgcat/hr
+%% -- Governing Equations (TO DO)
+NetRateProduction = zeros(NS,1);
 
-%% Governing Equations.
-NetRateProduction = ones(NS,1);
 for j=1:NR
     for i=1:NS
-        NetRateProduction(i) = NetRateProduction(i) + Stoichiometry(j,i)*ReactionRate(j);
+        NetRateProduction(i)=NetRateProduction(i)+...
+                              Stoichiometry(j,i)*ReactionRate(j);
     end
 end
 
-%Mass Balance
+% mass balances
 for i=1:NS
-    pfr_pseudo_hom(i) = NetRateProduction(i)*(1-VoidFraction)*CatalystDensity*mw(i)/G;
+    pfr_pseudo_hom(i)=...
+        NetRateProduction(i)*(1-VoidFraction)*CatalystDensity*mw(i)/G;
 end
 
-RateH = 0;
+RateH=0;
 for j=1:NR
-    RateH = RateH + deltaH(j)*ReactionRate(j); %kJ/kgcat/hr
+    RateH=RateH+deltaH(j)*ReactionRate(j); %kJ/kg_cat/h
 end
 
-%Energy Balance
-pfr_pseudo_hom(NS+1) = (-RateH*(1-VoidFraction)*CatalystDensity + (4/TubeDiameter)*U*(MoltenSaltsTemperature-Temperature))/G/SpecificHeatP;
+% energy balance
+pfr_pseudo_hom(NS+1)=(-RateH*(1-VoidFraction)*CatalystDensity+...
+    U*(4/TubeDiameter)...
+    *(MoltenSaltsTemperature-Temperature))/G/SpecificHeatP;
 
-% Ergun Equation
-pfr_pseudo_hom(NS+2) = -(((150*(1-VoidFraction)^2/VoidFraction^3))*Viscosity*SuperFicialVelocity/ParticleDiameter^2 + ...
-    7/4 * (DensityMassGas*SuperFicialVelocity^2/ParticleDiameter)* ((1-VoidFraction)/VoidFraction^3))/1e5;
+% ergun equation
+pfr_pseudo_hom(NS+2)=-(((150*(1-VoidFraction)^2/VoidFraction^3))*...
+    Viscosity*SuperficialVelocity/ParticleDiameter^2+...
+    7/4*(DensityMassGas*SuperficialVelocity^2/ParticleDiameter)...
+    *((1-VoidFraction)/VoidFraction^3))/1e5;
 
-
+pfr_pseudo_hom=pfr_pseudo_hom';
 end
+
