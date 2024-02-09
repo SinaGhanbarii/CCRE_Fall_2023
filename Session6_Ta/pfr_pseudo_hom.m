@@ -1,0 +1,6 @@
+function pfr_pseudo_hom = pfr_pseudo_hom(t,y)
+global Stoichiometry deltaH mw SpecificHeatP Viscosity ...
+    TubeDiameter CatalystDensity U ...
+    VoidFraction MoltenSaltsTemperature G ParticleDiameter NS NR 
+
+end
