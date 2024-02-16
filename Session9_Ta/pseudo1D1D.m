@@ -27,24 +27,23 @@ global initial_point ParticleRadius
 
 %% PROBLEM DATA
 %Reactions: 
-
-Stoichiometry=[0 -3 -1 +1 +3 0
-               0 -10.5 -1 0 5 8
-               0 -7.5 0 -1 2 8];
+% CH4 H2O CO CO2 H2
+Stoichiometry=[-1 -1 +1 0 +3
+    0 -1 -1 +1 +1];
            
-deltaH=[-1285409 -4564000 -3278591]; %kJ/mol
+deltaH=[224e+3 -37.3e3]; %kJ/mol
 
 %Species:
-mw=[28 32 106.16 148.12 18 44]; % kg/kmol
+mw=[16 18 28 44 2]; % kg/kmol
 
-ParticleDiameter=0.005; %m
+ParticleDiameter=0.0173; %m
 ParticleRadius = ParticleDiameter/2;
 NR=50; % Number of radial points
 initial_point = 0e-3;
 r_vector=linspace(initial_point,ParticleRadius,NR);
 delta_r = r_vector(2)-r_vector(1);
 
-epsi=0.3;
+epsi=0.5;
 tau=5;
 pore_diameter=1e-8; %m
 
