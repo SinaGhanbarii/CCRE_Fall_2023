@@ -21,12 +21,13 @@ end
 
 DHr = DHr_ref + Cpmix*(T-Tref);
 
+% Coefficients for Kinetic Constant dependency on temperature!
 a = 0.3099;
 b = -275.06;
 c = 68248;
-
-kr = polyval([a b c], T);
-
+% Assign the value of k_r using the given Temp.
+% kr = polyval([a b c], T);
+kr = a*T^2+b*T+c;
 rate = kr * conc(index('O2')) * conc(index('NO'))^2;
 for i = 1:NS
     exe1_adi_tubular(i) = (nu(i) * rate);
