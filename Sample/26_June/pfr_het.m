@@ -7,7 +7,8 @@ function pfr_het=pfr_het(t,y)
 global Stoichiometry deltaH mw SpecificHeatP Viscosity0 ...
     TubeDiameter CatalystDensity ...
     VoidFraction MoltenSaltsTemperature G ParticleDiameter NS NR lambda0 ...
-    lambda_cat ReactorLength TubeThickness lambdaTube ExternalHeatCoefficient
+    lambda_cat ReactorLength TubeThickness lambdaTube ExternalHeatCoefficient ...
+    Sphericity
 
 global diffusivity0 a_v_particle NEQ
 
@@ -24,6 +25,7 @@ Temperature=y(Nsolid);
 TemperatureSurface=y(end-1);
 Pressure_bar=y(end);
 Pressure_Pa=Pressure_bar*1e5;
+Pressure_atm = Pressure_bar/1.01325;
 DensityMolarGas=1e-3*Pressure_Pa/8.314/Temperature; %kmol/m3
 
 mw_av=0;
@@ -33,19 +35,28 @@ end
 
 DensityMassGas=DensityMolarGas*mw_av; %kg/m3
 
-SuperficialVelocity=G/DensityMassGas/3600; %m/s
+SuperficialVelocity=G/DensityMassGas; %m/s
+SpecificHeatkg=SpecificHeatP/mw_av;
 
-%-KINETIC SCHEME:
+%-KINETIC SCHEME: CH3OH O2 CH2O H2O CO N2 T P 
 % -- 
-ReactionK(1)=exp(19.837-13636/TemperatureSurface);
-ReactionK(2)=exp(18.970-14394/TemperatureSurface);
-ReactionK(3)=exp(20.860-15803/TemperatureSurface);
-ReactionRate(1)=ReactionK(1)*Pressure_bar^2....
-    *MolarFractionSurface(2)*MolarFractionSurface(3); %kmol/kg_cat_/h
-ReactionRate(2)=ReactionK(2)*Pressure_bar^2....
-    *MolarFractionSurface(2)*MolarFractionSurface(3); %kmol/kg_cat_/h
-ReactionRate(3)=ReactionK(3)*Pressure_bar^2....
-    *MolarFractionSurface(2)*MolarFractionSurface(4); %kmol/kg_cat_/h
+
+PartialPressure = Pressure_atm*MolarFractionSurface;
+pCH3OH = PartialPressure(1);
+pO2 = PartialPressure(2);
+pCH2O = PartialPressure(3);
+
+eta1= 0.82*((TemperatureSurface-273.15)/230)^(-3.3);
+eta2 = 0.75*((TemperatureSurface-273.15)/230)^(-3);
+
+eta = [eta1 eta2];
+disp(eta)
+R=8.314*1000/4186;  %kcal/kmol
+
+ReactionK(1)=exp(18.15-17700/(TemperatureSurface*R));
+ReactionK(2)=2.42e5*exp(-16050/(TemperatureSurface*R));
+ReactionRate(1)=ReactionK(1)*(sqrt(pO2*pCH3OH)/(pO2^0.5+0.5*pCH3OH^0.5))*101.325/8.314/273.15*1000/3600/1000; %kmol/kg_cat_/h
+ReactionRate(2)=ReactionK(2)*pCH2O*101.325/8.314/273.15*1000/3600/1000; %kmol/kg_cat_/h
 
 for i=1:NS
 NetRateProduction(i)=0;
@@ -54,18 +65,16 @@ end
 for j=1:NR
     for i=1:NS
         NetRateProduction(i)=NetRateProduction(i)+...
-                              Stoichiometry(j,i)*ReactionRate(j);
+                              Stoichiometry(j,i)*ReactionRate(j)*eta(j);
     end
 end
-%sina kheng hast 
-%meymoon
 
 %% EXTERNAL HEAT TRANSFER
 lambda=lambda0;
 Viscosity=Viscosity0;
 
-Re=G/3600*ParticleDiameter/Viscosity; 
-Prandtl=Viscosity*SpecificHeatP/lambda*1e3; 
+Re=G*ParticleDiameter/Viscosity; 
+Prandtl=Viscosity*SpecificHeatkg/lambda; 
 
 %--Dixon + Specchia:-----
 lambda_static=lambda*(VoidFraction+...
@@ -96,15 +105,14 @@ Ai=pi*TubeDiameter*ReactorLength;
 Ae=pi*(TubeDiameter+2*TubeThickness)*ReactorLength;
 Aln=(Ae-Ai)/log(Ae/Ai);
 
-U=(1/InternalHeatCoefficient+TubeThickness/lambdaTube*Ai/Aln+1/ExternalHeatCoefficient*Ai/Ae)^-1; %W/m2/K
-U = U*3600/1000; % kJ/m2/h/K
+U=(1/InternalHeatCoefficient+TubeThickness/lambdaTube*Ai/Aln+1/ExternalHeatCoefficient*Ai/Ae)^-1; %W/m2/K; 
 
 %% INTERPHASE Trasport
-Re_p = (G/3600)*ParticleDiameter/6/Viscosity/(1-VoidFraction);
-J_m  =0.61*Re_p^(-0.41); % YOSHIDA CORRELATION
+Re_p = (1/Sphericity)*(G)*ParticleDiameter/6/Viscosity/(1-VoidFraction);
+J_m  = Sphericity*0.61*Re_p^(-0.41); % YOSHIDA CORRELATION
 J_h = J_m; % Chilton-Colburn Analogy 
 
-Re = (G/3600)*ParticleDiameter/Viscosity;
+Re = (G)*ParticleDiameter/Viscosity;
 Nusselt = J_h*Re*Prandtl^(1/3);
 
 h_thermal = Nusselt*lambda0/ParticleDiameter;
@@ -117,21 +125,21 @@ end
 
 %% -- Governing Equations 
 for i=1:NS
-    pfr_het(i)=(3600*a_v_particle*k_mat(i)*DensityMassGas*(y(i+Nsolid)-y(i)))/G;
-    pfr_het(i+Nsolid)=-(3600*a_v_particle*k_mat(i)*DensityMassGas*(y(i+Nsolid)-y(i)))+ ...
+    pfr_het(i)=(a_v_particle*k_mat(i)*DensityMassGas*(y(i+Nsolid)-y(i)))/G;
+    pfr_het(i+Nsolid)=-(a_v_particle*k_mat(i)*DensityMassGas*(y(i+Nsolid)-y(i)))+ ...
         NetRateProduction(i)*(1-VoidFraction)*CatalystDensity*mw(i);
 end
 
 RateH=0;
 for j=1:NR
-    RateH=RateH+deltaH(j)*ReactionRate(j); %kJ/kg_cat/h
+    RateH=RateH+deltaH(j)*ReactionRate(j)*eta(j); %kJ/kg_cat/h
 end
 
-pfr_het(Nsolid)=(3600*1e-3*h_thermal*a_v_particle*(TemperatureSurface-Temperature)+ ...
-    U*(4/TubeDiameter)*(MoltenSaltsTemperature-Temperature))/G/SpecificHeatP;
+pfr_het(Nsolid)=(h_thermal*a_v_particle*(TemperatureSurface-Temperature)+ ...
+    U*(4/TubeDiameter)*(MoltenSaltsTemperature-Temperature))/G/SpecificHeatkg;
 
 pfr_het(NEQ-1)=(-RateH*(1-VoidFraction)*CatalystDensity - ...
-    3600*1e-3*h_thermal*a_v_particle*(TemperatureSurface-Temperature))/G/SpecificHeatP;
+    h_thermal*a_v_particle*(TemperatureSurface-Temperature))/G/SpecificHeatkg;
 
 pfr_het(NEQ)=-(((150*(1-VoidFraction)^2/VoidFraction^3))*...
     Viscosity*SuperficialVelocity/ParticleDiameter^2+...
