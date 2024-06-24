@@ -2,6 +2,17 @@ clear all, clc
 
 %- main script
 %
+% Procedure: 
+%   1: Declare how to answer the question!
+%   2: Explain the procedure that will lead you to answer the question 
+%   3: Declare and justify the assumptions that you are going to make 
+%   4: Report equations/models ---> Write Boundary conditions and explain
+%   each parameter and physical meaning of each term!
+%   5: Report all the transformations in terms of the units of measurement in order to have all the parameters 
+%   coherent
+%   6: report the results. If it is a graph, report a 
+%   qualitative curve with quantitative values of the quantity at given points (e.g., maximum, minimum, 
+%   outlet, …). 
 % CCRE - Prof. Matteo Maestri - November 13 - a.a 2023/24
 %
 %--variables:
@@ -151,3 +162,11 @@ plot(t,y(:,1+7),'linestyle','--')
 xlabel('Reactor Lenght [m]')
 ylabel('O-xylene mass fraction [-]')
 legend('Gas','Surface')
+
+
+% Sherwood Number (Sh): Ratio of convective mass transfer to diffusive mass transfer.
+% Schmidt Number (Sc): Ratio of momentum diffusivity (kinematic viscosity) to mass diffusivity.
+% Reynolds Number (Re): Ratio of inertial forces to viscous forces.
+% Nusselt Number (Nu): Ratio of convective to conductive heat transfer.
+% Prandtl Number (Pr): Ratio of momentum diffusivity (kinematic viscosity) to thermal diffusivity.
+% Peclet Number (Pe): Ratio of convective to diffusive transport rates, used in both heat and mass transfer.
