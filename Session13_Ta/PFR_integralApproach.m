@@ -8,11 +8,11 @@ global kr tau cAin cBin
 
 Pressure=101325; %Pa
 R=8.314; %J/mol/K
-Q_298K_1atm=4e-6; %Nm3/s
+Q_298K_1atm=0.08; %Nm3/s
 % d_r=0.02; %m reactor diameter
 % L_r=0.06; %m reactor length
 % A_r=pi*d_r^2/4; %m2
-V_r=2e-7; %m3
+V_r=7.7E-6; %m3
 
 Temperature=493; %K
 Q=Q_298K_1atm*(Temperature/298); %m3/s

@@ -77,7 +77,7 @@ NS = 6; % number of species
 
 %==
 basis_calc=1; %kmol YOUR CHOICE!
-for i=1:NS
+for i=1:NS-1
     mass(i)=basis_calc*MolarFractionIN(i)*mw(i); %kg
 end
 MassFractionIN=mass./sum(mass);

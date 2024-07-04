@@ -17,10 +17,9 @@ global NS NP L NTOT delta_z z_star v_bubble v_mf omega_0 v_0 delta integral ...
 %species order
 %1)n-butane 2)O2 3)MA 4)CO 5)CO2 6)H2O 7)N2
 
-MW=[58;32;98;28;44;18;28];   % [kg/kmol] 
+MW=[32	46	18	40]';   % [kg/kmol] 
 NS=length(MW); % number of species
 N_phases = 3; % number of phases
-n_butane_to_air_ratio_molar=0.04;
 n_0=[n_butane_to_air_ratio_molar;0.21;0;0;0;0;0.79];
 x_0=n_0/sum(n_0); % [-] inlet molar fractions
 mass_0=n_0.*MW;

@@ -87,13 +87,7 @@ end
 %reaction 3: MA + O2 -> 4CO + H2O (MA partial oxidation)
 
 %species order: 1)n-butane 2)O2 3)MA 4)CO 5)CO2 6)H2O 7)N2
-nu=[-1 -1 0;
-    -3.5 -5.5 -1;
-    1 0 -1;
-    0 2 4;
-    0 2 0;
-    4 5 1;
-    0 0 0];
+nu=[-2 1 1 0];
 
 Rate_bubble=zeros(NP,NS);
 Rate_cloud=zeros(NP,NS);
@@ -127,42 +121,26 @@ for i=1:NP
     end
        
     %computation of reaction rates parameters
-    Trif=673; %[K]
-    k1_rif=2.2e-3;%[mol/kgcat/s/atm^0.54]
-    k2_rif=0.3e-3;%[mol/kgcat/s/atm^0.54]
-    k3_rif=0.22e-2;%[mol/kgcat/s/atm]
-    
-    Ea=[60 45 190]; %[kJ/mol]
+
+    Trif=273.15+288; %[K]
+    k_r = 21900;
+    K_eq = 11.5;
+    K_MeOH = 14000;
+    K_H2O = 47000;
     Rgas=8.314/1e3; %[kJ/mol]
     
-    k1=k1_rif*exp(Ea(1)/Trif/Rgas*(1-Trif/T0)); %[mol/kgcat/s/atm^0.54]
-    k2=k2_rif*exp(Ea(2)/Trif/Rgas*(1-Trif/T0)); %[mol/kgcat/s/atm^0.54]
-    k3=k3_rif*exp(Ea(3)/Trif/Rgas*(1-Trif/T0)); %[mol/kgcat/s/atm]
-    
-    KMA=185; %[atm^-1]
-    
+    disp(xi_bubble(i,1))
     %computation of reaction rates
-    P0_atm=P0/101325;
-    r1_bubble=k1*(P0_atm*xi_bubble(i,1))^0.54/(1+KMA*(P0_atm*xi_bubble(i,3)));
-    r1_cloud=k1*(P0_atm*xi_cloud(i,1))^0.54/(1+KMA*(P0_atm*xi_cloud(i,3)));
-    r1_emulsion=k1*(P0_atm*xi_emulsion(i,1))^0.54/(1+KMA*(P0_atm*xi_emulsion(i,3)));
-    
-    r2_bubble=k2*(P0_atm*xi_bubble(i,1))^0.54;
-    r2_cloud=k2*(P0_atm*xi_cloud(i,1))^0.54;
-    r2_emulsion=k2*(P0_atm*xi_emulsion(i,1))^0.54;
-    
-    r3_bubble=k3*(P0_atm*xi_bubble(i,3))/(1+KMA*(P0_atm*xi_bubble(i,3)))^2;
-    r3_cloud=k3*(P0_atm*xi_cloud(i,3))/(1+KMA*(P0_atm*xi_cloud(i,3)))^2;
-    r3_emulsion=k3*(P0_atm*xi_emulsion(i,3))/(1+KMA*(P0_atm*xi_emulsion(i,3)))^2;
-    
-    rates_bubble=[r1_bubble; r2_bubble; r3_bubble]/1e3; %kmol/kgcat/s
-    rates_cloud=[r1_cloud; r2_cloud; r3_cloud]/1e3; %kmol/kgcat/s
-    rates_emulsion=[r1_emulsion; r2_emulsion; r3_emulsion]/1e3; %kmol/kgcat/s
+    C_tot = P0/Rgas/Trif;
+    disp(C_tot)
+    r_Bubble = (k_r*(C_tot^2*xi_bubble(i,1)^2))*(1-(C_tot^2*xi_bubble(i,2)*xi_bubble(i,3))/(C_tot^2*xi_bubble(i,1)^2*K_eq))/(1+K_MeOH*xi_bubble(i,1)*C_tot+K_H2O*C_tot*xi_bubble(i,3)).^2;
+    r_cloud = (k_r*(C_tot^2*xi_cloud(i,1)^2))*(1-(C_tot^2*xi_cloud(i,2)*xi_cloud(i,3))/(C_tot^2*xi_cloud(i,1)^2*K_eq))/(1+K_MeOH*xi_cloud(i,1)*C_tot+K_H2O*C_tot*xi_cloud(i,3)).^2;
+    r_emulsion = (k_r*(C_tot^2*xi_emulsion(i,1)^2))*(1-(C_tot^2*xi_emulsion(i,2)*xi_emulsion(i,3))/(C_tot^2*xi_emulsion(i,1)^2*K_eq))/(1+K_MeOH*xi_emulsion(i,1)*C_tot+K_H2O*C_tot*xi_emulsion(i,3)).^2;
     
     %computation and storing of species molar production rates
-    rk_prodution_bubble=nu*rates_bubble; %kmol/kgcat/s
-    rk_prodution_cloud=nu*rates_cloud; %kmol/kgcat/s
-    rk_prodution_emulsion=nu*rates_emulsion; %kmol/kgcat/s
+    rk_prodution_bubble=nu*r_Bubble; %kmol/kgcat/s
+    rk_prodution_cloud=nu*r_cloud; %kmol/kgcat/s
+    rk_prodution_emulsion=nu*r_emulsion; %kmol/kgcat/s
     
     for k=1:NS
         Rate_bubble(i,k)=rk_prodution_bubble(k)*catalyst_density; %kmol/m3cat/s
