@@ -4,10 +4,11 @@
 
 clear all, clc 
 
-global kr
+global kr epsi
 
 k0 = 1.96e9;
 Ea_R = 8.491e3;
+epsi = 0.4;
 
 Pressure=101325; %Pa
 R=8.314; %J/mol/K

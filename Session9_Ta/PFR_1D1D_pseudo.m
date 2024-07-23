@@ -189,12 +189,12 @@ for i=1:NS+1
                 Tpp_r=(TemperatureSolid(j+1)-2*TemperatureSolid(j)+TemperatureSolid(j-1))/((r_vector(j+1)-r_vector(j))*(r_vector(j)-r_vector(j-1))); 
                 PFR_1D1D_pseudo(startSolidIndex+(j-1)*NEQ+i)=(lambda_cat/r_vector(j)*(r_vector(j)*Tpp_r+2*Tp_r)-RateH(j)*CatalystDensity/3600*1000);
             end
-        else %Gas-Solid Interface
+        elseif j==NR %Gas-Solid Interface
             if i<NS+1           
-%                 %Species Balance Equation
+                 %Species Balance Equation
                   PFR_1D1D_pseudo(startSolidIndex+(j-1)*NEQ+i)= y(startSolidIndex+(j-1)*NEQ+i)-y(i);
             else
-%                 %Energy Balance Equation
+                 %Energy Balance Equation
                   PFR_1D1D_pseudo(startSolidIndex+(j-1)*NEQ+i)= y(startSolidIndex+(j-1)*NEQ+i)-y(i);
             end
         end

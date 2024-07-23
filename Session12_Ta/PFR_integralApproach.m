@@ -14,25 +14,24 @@ L_r=0.06; %m reactor length
 A_r=pi*d_r^2/4; %m2
 V_r=A_r*L_r; %m3
 
-Temperature=550; %K
+Temperature=480; %K
 Q=Q_298K_1atm*(Temperature/298); %m3/s
 tau=V_r/Q; %s
 
 % fitting procedure
-firstGuess=[152 1]'; % kr n
+firstGuess=[40.3 1]'; % kr n
 
 cAin = [0.75
 1
 1.25
 1.5
-1.75
-];
+1.75];
 
-cAout = [0.61521
-0.82025
-1.0253
-1.2303
-1.4353
+cAout = [0.73232
+0.97643
+1.2205
+1.4646
+1.7088
 ];
 
 cBin = [0.1

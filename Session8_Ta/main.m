@@ -1,4 +1,4 @@
-clear all
+clear,clc,clf,close
 
 %- main script
 %

@@ -1,7 +1,7 @@
 % --CCRE (Prof. Matteo Maestri) - 2023/2024 - December 11, 2023  
 %
 
-clear all, clc 
+clearvars, clf, close, clc 
 
 global cA time
 cA = [10

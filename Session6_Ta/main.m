@@ -106,3 +106,7 @@ plot(t,y(:,7)-273.15)
 xlabel('Reactor Lenght [m]')
 ylabel('Temperature [°C]')
 legend('Gas')
+
+figure(2)
+plot(t,y(:,8))
+xlabel('Reactor Length [m]'); ylabel('Pressure [Pa]'); grid on

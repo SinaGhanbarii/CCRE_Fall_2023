@@ -2,8 +2,6 @@ function [rIIII,E, MH, resG, resL, resK] = OverallRateOfChange_KN(pA, CB)
 
 global b c DiffA DiffB fL HA a KLa KGa kl 
      
-% codice completo
-
     %% Preliminary calculations
     klStar = kl*CB;
     KL = KLa/a;

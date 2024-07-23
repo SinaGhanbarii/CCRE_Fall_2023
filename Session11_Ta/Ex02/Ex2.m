@@ -12,7 +12,7 @@ HA = 1; % [Pa m3/mol]
 a = 100; % [m2/m3]
 KLa = 100; % mass transfer in the liquid phase [1/hr]
 KGa = 0.1; % mass transfer in the gas phase [mol/m3/hr/Pa]
-kl = 1e8; % kinetic constant (liquid volume basis) [m3/mol/hr]
+kl = 1e+8; % kinetic constant (liquid volume basis) [m3/mol/hr]
 
 pA = 100; %[Pa]
 CBin = 100; %[mol/m3]

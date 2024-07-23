@@ -2,7 +2,7 @@
 %
 % A -> B 
 
-clear all, clc
+clearvars, clc, close
 
 global cA time
 
@@ -142,34 +142,3 @@ end
 
 batchReactor=batchReactor';
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
